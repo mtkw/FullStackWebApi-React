@@ -1,4 +1,5 @@
 using DataAccess.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,10 +34,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowWebApiClient");
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
-app.UseAuthorization();
+// app.UseAuthorization();
 
 app.MapControllers();
+
+DbInitializer.InitDb(app);
 
 app.Run();
