@@ -13,16 +13,7 @@ builder.Services.AddSwaggerGen();
 
 
 //Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowWebApiClient",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:3000")
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-        });
-});
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -33,7 +24,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowWebApiClient");
+app.UseCors(opt =>
+{
+    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:3000");
+});
 // app.UseHttpsRedirection();
 
 // app.UseAuthorization();
