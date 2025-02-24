@@ -274,3 +274,7 @@ ModelManifest.xml
 *.db
 *.db-shm
 *.db-wal
+
+
+#Vite
+.vite/
