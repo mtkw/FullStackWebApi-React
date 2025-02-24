@@ -25,5 +25,5 @@ dist-ssr
 
 
 #Vite
-.vite/
-.vite/deps
+/.vite/
+/.vite/deps

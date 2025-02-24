@@ -277,5 +277,5 @@ ModelManifest.xml
 
 
 #Vite
-.vite/
-.vite/deps
+/.vite/
+/.vite/deps
