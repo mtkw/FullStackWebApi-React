@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Product } from "../models/Product";
 import Catalog from "../../features/catalog/Catalog";
-import { Container, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 
 function App() {
   const [products, setProduts] = useState<Product[]>([]);
@@ -30,8 +30,14 @@ function App() {
 
   return (
     <Container maxWidth="xl">
-      <Typography variant="h4">E-Commerce Shop</Typography>
-      <Catalog products={products} addProduct={addProduct} />
+      <Box display="flex" justifyContent="center" gap={3} marginY={3}>
+        <Typography variant="h4">E-Commerce Shop</Typography>
+        <Button variant="contained" onClick={addProduct}>
+          Add Product
+        </Button>
+      </Box>
+
+      <Catalog products={products} />
     </Container>
   );
 }
