@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Product } from "../models/Product";
-import Catalog from "../../features/catalog/Catalog";
 import {
   Box,
   Container,
