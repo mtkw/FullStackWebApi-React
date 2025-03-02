@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Product } from "../../app/models/Product";
 import {
   Button,
   Divider,
@@ -13,42 +11,37 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useFetchProductsDetailsQuery } from "./catalogApi";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
 
-  useEffect(() => {
-    fetch(`https://localhost:7201/api/products/${id}`)
-      .then((response) => response.json())
-      .then((data) => setProduct(data))
-      .catch((error) => console.log(error));
-  }, [id]);
+  const { data, isLoading } = useFetchProductsDetailsQuery(id ? +id : 0);
 
-  if (!product) return <div>Loading...</div>;
+  if (isLoading || !data) return <div>Loading...</div>;
 
   const productDetails = [
-    { label: "Name", value: product?.name },
-    { label: "Description", value: product?.description },
-    { label: "Type", value: product?.type },
-    { label: "Brand", value: product?.brand },
-    { label: "Quantity in stock", value: product?.quantityInStock },
+    { label: "Name", value: data?.name },
+    { label: "Description", value: data?.description },
+    { label: "Type", value: data?.type },
+    { label: "Brand", value: data?.brand },
+    { label: "Quantity in stock", value: data?.quantityInStock },
   ];
 
   return (
     <Grid2 container spacing={6} maxWidth={"lg"} sx={{ mx: "auto" }}>
       <Grid2 size={6}>
         <img
-          src={product?.pictureUrl}
-          alt={product?.name}
+          src={data?.pictureUrl}
+          alt={data?.name}
           style={{ width: "100%" }}
         />
       </Grid2>
       <Grid2 size={6}>
-        <Typography variant="h3">{product?.name}</Typography>
+        <Typography variant="h3">{data?.name}</Typography>
         <Divider sx={{ mb: 2 }} />
         <Typography variant="h4" color="secondary">
-          ${(product?.price / 100).toFixed(2)}
+          ${(data?.price / 100).toFixed(2)}
         </Typography>
         <TableContainer>
           <Table
