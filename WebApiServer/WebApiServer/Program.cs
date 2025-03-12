@@ -1,5 +1,6 @@
 using DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
+using WebApiServer.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +15,12 @@ builder.Services.AddSwaggerGen();
 
 //Add CORS
 builder.Services.AddCors();
+builder.Services.AddTransient<ExceptionMiddleware>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
