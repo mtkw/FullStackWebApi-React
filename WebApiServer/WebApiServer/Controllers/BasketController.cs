@@ -2,6 +2,8 @@ using DataAccess.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
+using WebApiServer.DTO;
+using WebApiServer.Extensions;
 
 namespace WebApiServer.Controllers
 {
@@ -9,7 +11,7 @@ namespace WebApiServer.Controllers
     {
 
         [HttpGet]
-        public async Task<ActionResult<Basket>> GetBasketById()
+        public async Task<ActionResult<BasketDto>> GetBasket()
         {
             var basket = await RetrievBasket();
 
@@ -17,11 +19,12 @@ namespace WebApiServer.Controllers
             {
                 return NoContent();
             }
-            return Ok(basket);
+            return basket.ToDto();
+
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddItemToBasket(int productId, int quantity)
+        public async Task<ActionResult<BasketDto>> AddItemToBasket(int productId, int quantity)
         {
             var basket = await RetrievBasket();
 
@@ -38,7 +41,7 @@ namespace WebApiServer.Controllers
 
             var result = await context.SaveChangesAsync() > 0;
 
-            if (result) return CreatedAtAction(nameof(GetBasketById), basket);
+            if (result) return CreatedAtAction(nameof(GetBasket), basket.ToDto());
 
             return BadRequest("Problem Updating Basket");
         }
@@ -46,7 +49,23 @@ namespace WebApiServer.Controllers
         [HttpDelete]
         public async Task<ActionResult> RemoveItemFromBasket(int productId, int quantity)
         {
-            return Ok();
+            var basket = await RetrievBasket();
+
+            if (basket == null)
+            {
+                return BadRequest("Problem removing item from basket or your basket is empty");
+            }
+            var productItem = await context.Products.FindAsync(productId);
+
+            if (productItem == null)
+            {
+                return BadRequest("Problem removing item from basket");
+            }
+
+            basket.RemoveItem(productId, quantity);
+            var result = await context.SaveChangesAsync() > 0;
+            if (result) return CreatedAtAction(nameof(GetBasket), basket.ToDto());
+            return BadRequest("Problem Updating Basket");
         }
 
         private async Task<Basket?> RetrievBasket()
