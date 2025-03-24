@@ -10,7 +10,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { setDarkMode } from "./uiSlice";
 
@@ -68,6 +68,8 @@ export default function NavBar() {
         </Box>
         <Box display="flex" alignItems="center">
           <IconButton
+            component={Link}
+            to="/basket"
             size="large"
             sx={{ color: "inherit", marginLeft: "auto" }}
           >
