@@ -1,12 +1,20 @@
 import { Box, Grid2, IconButton, Paper, Typography } from "@mui/material";
 import { Item } from "../../app/models/basket";
 import { Add, Close, Remove } from "@mui/icons-material";
+import {
+  useAddBasketItemMutation,
+  useRemoveBasketItemMutation,
+} from "./basketApi";
+import { currencyFormat } from "../../lib/util";
 
 type Props = {
   item: Item;
 };
 
 export default function BasketItem({ item }: Props) {
+  const [removeBasketItem] = useRemoveBasketItemMutation();
+  const [addBasketItem] = useAddBasketItemMutation();
+
   return (
     <Paper
       sx={{
@@ -36,14 +44,17 @@ export default function BasketItem({ item }: Props) {
           <Typography variant="h6">{item.name}</Typography>
           <Box display="flex" alignItems="center" gap={3}>
             <Typography sx={{ fontSize: "1.1rem" }}>
-              ${(item.price / 100).toFixed(2)} x {item.quantity}
+              {currencyFormat(item.price)} x {item.quantity} ={" "}
             </Typography>
             <Typography sx={{ fontSize: "1.1rem" }} color="primary">
-              ${((item.price / 100) * item.quantity).toFixed(2)}
+              {currencyFormat(item.price * item.quantity)}
             </Typography>
           </Box>
           <Grid2 container spacing={1} alignItems="center">
             <IconButton
+              onClick={() =>
+                removeBasketItem({ productId: item.id, quantity: 1 })
+              }
               color="error"
               size="small"
               sx={{ border: 1, borderRadius: 1, minWidth: 0 }}
@@ -52,6 +63,7 @@ export default function BasketItem({ item }: Props) {
             </IconButton>
             <Typography variant="h6">{item.quantity}</Typography>
             <IconButton
+              onClick={() => addBasketItem({ product: item, quantity: 1 })}
               color="success"
               size="small"
               sx={{ border: 1, borderRadius: 1, minWidth: 0 }}
@@ -62,6 +74,9 @@ export default function BasketItem({ item }: Props) {
         </Box>
       </Box>
       <IconButton
+        onClick={() =>
+          removeBasketItem({ productId: item.id, quantity: item.quantity })
+        }
         color="error"
         size="small"
         sx={{
