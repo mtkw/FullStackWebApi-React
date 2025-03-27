@@ -26,20 +26,26 @@ export const basketApi = createApi({
                 
             },
             onQueryStarted: async ({product, quantity}, { dispatch, queryFulfilled }) => {
+                let isNewBasket = false;
                 const patchResult = dispatch(
                     basketApi.util.updateQueryData("fetchBasket", undefined, (draft) => {
                         const productId = isBasketItem(product) ? product.id : product.id;
-                        const existingItems = draft.items.find(item=>item.id === productId);
-                        if(existingItems){
-                            existingItems.quantity += quantity;
+                        if(!draft?.basketId) isNewBasket = true;
+                        if(!isNewBasket){
+                            const existingItems = draft.items.find(item=>item.id === productId);
+                            if(existingItems){
+                                existingItems.quantity += quantity;
+                            }
+                            else{
+                                draft.items.push(isBasketItem(product) ? product : {...product, id: product.id, quantity});
+                            }
                         }
-                        else{
-                            draft.items.push(isBasketItem(product) ? product : new Item(product, quantity));
-                        }
+                        
                     })
                 )
                 try{
                     await queryFulfilled;
+                    if(isNewBasket) dispatch(basketApi.util.invalidateTags(["Basket"]));
                 }catch(error){
                     console.log(error);
                     patchResult.undo();

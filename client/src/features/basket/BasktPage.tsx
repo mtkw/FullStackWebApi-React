@@ -3,12 +3,13 @@ import { useFetchBasketQuery } from "./basketApi";
 import BasketItem from "./BasketItem";
 import OrderSummary from "../../app/shared/components/OrderSummary";
 
-export default function BasktPage() {
+const BasktPage = () => {
   const { data, isLoading } = useFetchBasketQuery();
 
   if (isLoading) return <Typography>Loading Basket...</Typography>;
 
-  if (!data) return <Typography variant="h3">Your Basket is empty</Typography>;
+  if (!data || data.items.length === 0)
+    return <Typography variant="h3">Your Basket is empty</Typography>;
 
   return (
     <Grid2 container spacing={2}>
@@ -22,4 +23,5 @@ export default function BasktPage() {
       </Grid2>
     </Grid2>
   );
-}
+};
+export default BasktPage;

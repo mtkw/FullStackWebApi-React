@@ -7,10 +7,18 @@ import {
   Paper,
 } from "@mui/material";
 import { currencyFormat } from "../../../lib/util";
+import { useFetchBasketQuery } from "../../../features/basket/basketApi";
+import { Item } from "../../models/basket";
+import { Link } from "react-router-dom";
 
 export default function OrderSummary() {
-  const subtotal = 0;
-  const deliveryFee = 0;
+  const { data: basket } = useFetchBasketQuery();
+  const subtotal =
+    basket?.items.reduce(
+      (sum: number, item: Item) => sum + item.quantity * item.price,
+      0
+    ) ?? 0;
+  const deliveryFee = subtotal >= 10000 ? 0 : 500;
 
   return (
     <Box
@@ -51,10 +59,19 @@ export default function OrderSummary() {
         </Box>
 
         <Box mt={2}>
-          <Button variant="contained" color="primary" fullWidth sx={{ mb: 1 }}>
+          <Button
+            component={Link}
+            to="/checkout"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mb: 1 }}
+          >
             Checkout
           </Button>
-          <Button fullWidth>Continue Shopping</Button>
+          <Button fullWidth component={Link} to="/catalog">
+            Continue Shopping
+          </Button>
         </Box>
       </Paper>
 
