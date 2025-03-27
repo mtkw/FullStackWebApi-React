@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
+using WebApiServer.Extensions;
 
 namespace WebApiServer.Controllers
 {
@@ -11,9 +12,14 @@ namespace WebApiServer.Controllers
     {
 
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> GetProducts()
+        public async Task<ActionResult<List<Product>>> GetProducts(string? orderBy, string? searchTerm)
         {
-            return await context.Products.ToListAsync();
+            var query = context.Products
+            .Sort(orderBy)
+            .Search(searchTerm)
+            .AsQueryable();
+
+            return await query.ToListAsync();
         }
 
         [HttpGet("{id}")]
