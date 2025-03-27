@@ -12,36 +12,69 @@ import {
   Typography,
 } from "@mui/material";
 import { useFetchProductsDetailsQuery } from "./catalogApi";
+import {
+  useAddBasketItemMutation,
+  useFetchBasketQuery,
+  useRemoveBasketItemMutation,
+} from "../basket/basketApi";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const [removeBasketItem] = useRemoveBasketItemMutation();
+  const [addBasketItem] = useAddBasketItemMutation();
+  const { data: basket } = useFetchBasketQuery();
+  const item = basket?.items.find((item) => item.id === +id!);
+  const [quantity, setQuantity] = useState(0);
 
-  const { data, isLoading } = useFetchProductsDetailsQuery(id ? +id : 0);
+  useEffect(() => {
+    if (item) setQuantity(item.quantity);
+  }, [item]);
 
-  if (isLoading || !data) return <div>Loading...</div>;
+  const { data: product, isLoading } = useFetchProductsDetailsQuery(
+    id ? +id : 0
+  );
+
+  if (isLoading || !product) return <div>Loading...</div>;
+
+  const handleUpdateBasket = () => {
+    const updatedQuantity = item
+      ? Math.abs(quantity - item.quantity)
+      : quantity;
+    if (!item || quantity > item?.quantity) {
+      addBasketItem({ product, quantity: updatedQuantity });
+    } else {
+      removeBasketItem({ productId: product.id, quantity: updatedQuantity });
+    }
+  };
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = +event.currentTarget.value;
+    if (value >= 0) setQuantity(value);
+  };
 
   const productDetails = [
-    { label: "Name", value: data?.name },
-    { label: "Description", value: data?.description },
-    { label: "Type", value: data?.type },
-    { label: "Brand", value: data?.brand },
-    { label: "Quantity in stock", value: data?.quantityInStock },
+    { label: "Name", value: product?.name },
+    { label: "Description", value: product?.description },
+    { label: "Type", value: product?.type },
+    { label: "Brand", value: product?.brand },
+    { label: "Quantity in stock", value: product?.quantityInStock },
   ];
 
   return (
     <Grid2 container spacing={6} maxWidth={"lg"} sx={{ mx: "auto" }}>
       <Grid2 size={6}>
         <img
-          src={data?.pictureUrl}
-          alt={data?.name}
+          src={product?.pictureUrl}
+          alt={product?.name}
           style={{ width: "100%" }}
         />
       </Grid2>
       <Grid2 size={6}>
-        <Typography variant="h3">{data?.name}</Typography>
+        <Typography variant="h3">{product?.name}</Typography>
         <Divider sx={{ mb: 2 }} />
         <Typography variant="h4" color="secondary">
-          ${(data?.price / 100).toFixed(2)}
+          ${(product?.price / 100).toFixed(2)}
         </Typography>
         <TableContainer>
           <Table
@@ -68,7 +101,8 @@ export default function ProductDetails() {
               type="number"
               label="Quantity in basket"
               fullWidth
-              defaultValue={1}
+              value={quantity}
+              onChange={handleInputChange}
             />
           </Grid2>
           <Grid2 size={6}>
@@ -78,8 +112,12 @@ export default function ProductDetails() {
               color="primary"
               size="large"
               fullWidth
+              disabled={
+                quantity === item?.quantity || (!item && quantity === 0)
+              }
+              onClick={handleUpdateBasket}
             >
-              Add to basket
+              {item ? "Update Basket" : "Add to Basket"}
             </Button>
           </Grid2>
         </Grid2>
